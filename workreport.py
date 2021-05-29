@@ -2,7 +2,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import openpyxl
 import re
-
+import sys
 
 def getAllData(spreadsheet_key, sheet_name):
     #jsonファイルを使って認証情報を取得
@@ -106,6 +106,13 @@ def writeData(userid, month, data):
     print('Writing ' + userid + '.xlsx')
     wb.save(userid + '.xlsx')
 
-list_of_lists = getAllData('102Fbm3HKFOeCg6Q0CEAQE88CLQ3xvtW3bTPDGydx02A',"2021前期")
-data=findData('1018078', 5, list_of_lists)
-writeData('1018078', 5, data)
+if len(sys.argv) < 3:
+    print('Usage: ' + sys.argv[0] + ' student-id month')
+elif not sys.argv[1].isnumeric() or not sys.argv[2].isnumeric():
+    print('Usage: ' + sys.argv[0] + ' student-id month')
+else:
+    id = sys.argv[1]
+    month = int(sys.argv[2])
+    list_of_lists = getAllData('102Fbm3HKFOeCg6Q0CEAQE88CLQ3xvtW3bTPDGydx02A',"2021前期")
+    data=findData(id, month, list_of_lists)
+    writeData(id, month, data)
