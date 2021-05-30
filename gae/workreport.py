@@ -3,6 +3,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import openpyxl
 import re
 import sys
+import os
+import tempfile
 
 def getAllData(spreadsheet_key, sheet_name):
     #jsonファイルを使って認証情報を取得
@@ -115,8 +117,11 @@ def writeData(userid, month, data):
     ws["K27"].value=int(data['price'])
     # K28 合計金額
     ws["K28"].value=sum*int(data['price'])
-    wb.save(userid + '.xlsx')
-    return userid + '.xlsx'
+    outpath=tempfile.gettempdir() + '/' + userid + '.xlsx'
+    if os.path.exists(outpath):
+        os.remove(outpath)
+    wb.save(outpath)
+    return outpath
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
