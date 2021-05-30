@@ -1,7 +1,9 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from workreport import getAllData, getAllID, findData, writeData
+import os
+import re
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
 # called `app` in `main.py`.
@@ -13,21 +15,7 @@ def hello():
     """Return a friendly HTTP greeting."""
     alldata = getAllData('102Fbm3HKFOeCg6Q0CEAQE88CLQ3xvtW3bTPDGydx02A',"2021前期")
     ids = getAllID(alldata)
-    print(ids)
-    ret = "Workreport generator for project TA 2021<br/>\n"
-    ret += '<form action="/create">\n'
-    ret += 'id: <select name="id">\n'
-    for i in ids:
-        ret += '<option value="{0}">{1}\n'.format(i,i)
-    ret += '</select><br/>\n'
-    months=[5,6,7]
-    ret += 'month: <select name="month">\n'
-    for m in months:
-        ret += '<option value="{0}">{1}\n'.format(m,m)
-    ret += '</select><br/>'
-    ret += '<input type="submit">\n'
-    ret += '</form>\n'
-    return ret
+    return render_template("/index.html", ids=ids, months=[5,6,7])
 
 @app.route('/create')
 def create():
@@ -36,10 +24,14 @@ def create():
     alldata = getAllData('102Fbm3HKFOeCg6Q0CEAQE88CLQ3xvtW3bTPDGydx02A',"2021前期")
     data = findData(stuid, int(month), alldata)
     file = writeData(stuid, month, data)
-    XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    return send_file(file, as_attachment = True,
-                     download_name = file,
-                     mimetype = XLSX_MIMETYPE)
+    if os.path.exists(file):
+        XLSX_MIMETYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        fname = re.sub(r'.*/','',file)
+        return send_file(file, as_attachment = True,
+                         download_name = fname,
+                         mimetype = XLSX_MIMETYPE)
+    else:
+        return "Cannot generate!!"
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

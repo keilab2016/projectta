@@ -1,0 +1,19 @@
+<head>
+<title>Workreport Generator for Project TA 2021</title>
+</head>
+<body>
+Workreport Generator for Project TA 2021<br/>
+<form action="/create">
+id: <select name="id">
+{%- for i in ids %}
+<option value="{{i}}">{{i}}
+{%- endfor %}
+</select><br/>
+month: <select name="month">
+{%- for m in months %}
+<option value="{{m}}">{{m}}
+{%- endfor %}
+</select><br/>
+<input type="submit">
+</form>
+</body>
